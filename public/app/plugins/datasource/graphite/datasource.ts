@@ -572,7 +572,20 @@ export class GraphiteDatasource extends DataSourceApi<GraphiteQuery, GraphiteOpt
     options.url = this.url + options.url;
     options.inspect = { type: 'graphite' };
 
-    return this.backendSrv.datasourceRequest(options);
+    return this.backendSrv.datasourceRequest(options).then(
+      (results: any) => {
+        return results;
+      },
+      (err: any) => {
+        if (err.status !== 0 && err.data && err.data.response) {
+          throw {
+            message: err.data.response,
+            data: err.data,
+            config: err.config,
+          };
+        }
+      }
+    );
   }
 
   buildGraphiteParams(options: any, scopedVars: ScopedVars): string[] {
